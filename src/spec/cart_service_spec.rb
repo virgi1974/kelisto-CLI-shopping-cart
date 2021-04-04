@@ -32,10 +32,33 @@ describe CartService do
     end
   end
 
+  context "Cartservice response" do
+    describe "returns a hash" do
+      it "when successful" do
+        cart_service = CartService.new(pricing_rules)
+        response = cart_service.call([])
+        expect(response.key?(:ok)).to be true
+        expect(response[:ok]).to be true
+        expect(response.key?(:total_price)).to be true
+        expect(response[:total_price]).to be 0.00
+      end
+
+      it "when failure" do
+        pricing_rules["GR1"]["price"] = "not valid type"
+        cart_service = CartService.new(pricing_rules)
+        response = cart_service.call(["GR1"])
+        expect(response.key?(:ok)).to be true
+        expect(response[:ok]).to be false
+        expect(response.key?(:total_price)).to be true
+        expect(response[:total_price]).to be nil
+      end
+    end
+  end
+
   context "Cart empty" do
     it 'returns 0.0 price' do
       cart_service = CartService.new(pricing_rules)
-      expect(cart_service.call([])).to eq(0.0)
+      expect(cart_service.call([])[:total_price]).to eq(0.0)
     end
   end
 
@@ -50,7 +73,7 @@ describe CartService do
 
           expected_price = (number_of_items * random_price).round(2)
           cart_service = CartService.new(pricing_rules)
-          expect(cart_service.call(items)).to eq(expected_price)
+          expect(cart_service.call(items)[:total_price]).to eq(expected_price)
         end
     end
 
@@ -67,7 +90,7 @@ describe CartService do
             expected_price = (number_of_items * random_price).round(2)
             cart_service = CartService.new(pricing_rules)
 
-            expect(cart_service.call(items)).to eq(expected_price)
+            expect(cart_service.call(items)[:total_price]).to eq(expected_price)
           end
           
           it "when required_number_of_items > scanned items" do
@@ -80,7 +103,7 @@ describe CartService do
             
             expected_price = (number_of_items * random_price).round(2)
             cart_service = CartService.new(pricing_rules)
-            expect(cart_service.call(items)).to eq(expected_price)
+            expect(cart_service.call(items)[:total_price]).to eq(expected_price)
           end
         end
         
@@ -94,12 +117,12 @@ describe CartService do
             cart_service = CartService.new(pricing_rules)
             items = ["GR1"] * 2
             # ["GR1" 10.21] ["GR1" 0.00] 
-            expect(cart_service.call(items)).to eq(10.21)
+            expect(cart_service.call(items)[:total_price]).to eq(10.21)
             
             cart_service_2 = CartService.new(pricing_rules)
             items = ["GR1"] * 3
             # ["GR1" 10.21] ["GR1" 0.00] ["GR1" 10.21]
-            expect(cart_service_2.call(items)).to eq(10.21 * 2)
+            expect(cart_service_2.call(items)[:total_price]).to eq(10.21 * 2)
           end
         end
       end
@@ -116,7 +139,7 @@ describe CartService do
             cart_service = CartService.new(pricing_rules)
             items = ["SR1"] * 2
             # ["SR1" 7.55] ["SR1" 7.55] 
-            expect(cart_service.call(items)).to eq(price * 2)
+            expect(cart_service.call(items)[:total_price]).to eq(price * 2)
           end
         end
 
@@ -132,7 +155,7 @@ describe CartService do
             items = ["SR1"] * 4
             expected_price = price - 0.50
             # ["SR1" 7.05] ["SR1" 7.05] ["SR1" 7.05] ["SR1" 7.05]
-            expect(cart_service.call(items)).to eq(expected_price * 4)
+            expect(cart_service.call(items)[:total_price]).to eq(expected_price * 4)
           end
         end
       end

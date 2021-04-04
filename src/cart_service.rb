@@ -23,9 +23,13 @@ class CartService
         add_items(product_id: key, number_of_items: items_grouped[key])
       end
     end
-    
+
     total_price = cart_items.inject (0.00) { |sum, item| sum + item.values[0] }
-    total_price.round(2)
+
+    {ok: true, total_price: total_price.round(2)}
+
+  rescue => e
+    {ok: false, total_price: nil}
   end
   
   private

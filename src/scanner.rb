@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require "tty-prompt"
 require "yaml"
 require './cart_service.rb'
@@ -15,7 +17,7 @@ cart_items = []
 finishing = 0
 
 prompt = TTY::Prompt.new
-prompt.say("select the *** EXIT *** option once finished")
+prompt.warn("select the *** EXIT *** option once finished")
 puts "\n"
 
 while finishing == 0
@@ -31,6 +33,14 @@ end
 result = cart_service.call(cart_items)
 
 puts "\n"
-prompt.ok("---------------------")
-prompt.ok("Total price expected: £#{result}")
-prompt.ok("---------------------")
+
+if result[:ok] == true
+  prompt.ok("---------------------")
+  prompt.ok("Total price expected: £#{result[:total_price]}")
+  prompt.ok("---------------------")
+else
+  prompt.error("####### There was an error during the checkout #######")
+end
+
+
+
