@@ -1,0 +1,18 @@
+GR1:
+  name: Green tea
+  price: 3.11
+  rule:
+    apply_free_units_discount:
+      required_number_of_items: 1
+      free_items: 1
+
+SR1:
+  name: Strawberries
+  price: 5.00
+  rule:
+    apply_bulk_discount:
+      required_number_of_items: 3
+      discount: 0.50
+CF1:
+  name: Coffee
+  price: 11.23
