@@ -1,0 +1,7 @@
+version: "2"
+services:
+  scanner:
+    build: .
+    stdin_open: true
+    tty: true
+    command: ruby scanner.rb
