@@ -1,20 +1,22 @@
 require "tty-prompt"
-require "pry"
 require "yaml"
 require './cart_service.rb'
 
+# cart service initialization with active pricing rules
 pricing_rules = YAML.load_file("./data/pricing_rules.yml")
+cart_service = CartService.new(pricing_rules)
 
-prompt = TTY::Prompt.new
-cart_service = CartService.new(pricing_rules           )
+# composes the menu for CLI
 products = {}
+cart_service.pricing_rules.each {|entry| products[entry[1]["name"]] = entry[0]}
+products.merge!({"*** EXIT ***": 1})
+
 cart_items = []                                         
 finishing = 0
 
-cart_service.catalog.each {|entry| products[entry[1]["name"]] = entry[0]}
-products.merge!({"*** EXIT ***": 1})
-
-prompt.say("select the **finish** option once finished")
+prompt = TTY::Prompt.new
+prompt.say("select the *** EXIT *** option once finished")
+puts "\n"
 
 while finishing == 0
   product = prompt.select("Choose products", products)
@@ -26,9 +28,9 @@ while finishing == 0
   end
 end
 
-# cart_service.items << product unless product == 1
 result = cart_service.call(cart_items)
 
+puts "\n"
+prompt.ok("---------------------")
 prompt.ok("Total price expected: #{result}")
 prompt.ok("---------------------")
-# prompt.ok(cart_items)

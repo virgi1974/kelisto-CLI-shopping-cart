@@ -1,11 +1,10 @@
 require "yaml"
 
 class CartService
-  attr_reader :catalog, :pricing_rules, :cart_items
+  attr_reader :pricing_rules, :cart_items
 
   def initialize(pricing_rules)
     @cart_items = []
-    @catalog = YAML.load_file("./data/available_products.yml")
     @pricing_rules = pricing_rules
   end
 
@@ -13,7 +12,7 @@ class CartService
     items_grouped = items_grouped(items)
 
     items_grouped.keys.each do |key|
-      existing_pricing_rule = pricing_rules[key]&.keys&.first
+      existing_pricing_rule = pricing_rules[key]["rule"]&.first&.first
 
       case existing_pricing_rule
       when "apply_free_units_discount"
@@ -32,18 +31,19 @@ class CartService
   
   # adds extra free items
   def apply_free_units_discount(product_id: ,number_of_items:)
-    required_number_of_items = pricing_rules[product_id]["apply_free_units_discount"]["amount"]
-    number_of_free_items = pricing_rules[product_id]["apply_free_units_discount"]["free"]
-
+    rule_to_apply = pricing_rules[product_id]["rule"]["apply_free_units_discount"]
+    required_number_of_items = rule_to_apply["required_number_of_items"]
+    number_of_free_items = rule_to_apply["free_items"]
+    
     total = [product_id]*number_of_items
     normal = []
     with_discount = []
-
+    
     while total.size != 0
       normal << total.shift(required_number_of_items)
       with_discount << total.shift(number_of_free_items)
     end
-
+    
     # items with regular price
     add_items(product_id: product_id, number_of_items: normal.flatten.size)
     # items with free price
@@ -52,20 +52,20 @@ class CartService
   
   # applies bulk discount when matching criteria
   def apply_bulk_discount(product_id: ,number_of_items:)
-    required_number_of_items = pricing_rules[product_id]["apply_bulk_discount"]["amount"]
+    rule_to_apply = pricing_rules[product_id]["rule"]["apply_bulk_discount"]
 
-    if number_of_items >= required_number_of_items
-      discount = pricing_rules[product_id]["apply_bulk_discount"]["discount"]
-      applied_price = catalog[product_id]["price"] - discount
+    if number_of_items >= rule_to_apply["required_number_of_items"]
+      discount = rule_to_apply["discount"]
+      applied_price = pricing_rules[product_id]["price"] - discount
     end
 
-    applied_price ||= catalog[product_id]["price"]
+    applied_price ||= pricing_rules[product_id]["price"]
 
     add_items(product_id: product_id, number_of_items: number_of_items, price: applied_price)
   end
 
-  # adds items to cart with specific price or price by catalog
-  def add_items(product_id:, number_of_items:, price: catalog[product_id]["price"])
+  # adds items to cart with specific price or price by pricing_rules
+  def add_items(product_id:, number_of_items:, price: pricing_rules[product_id]["price"])
     number_of_items.times do
       cart_items << {"#{product_id}": price}
     end
