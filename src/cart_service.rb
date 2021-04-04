@@ -24,7 +24,8 @@ class CartService
       end
     end
     
-    cart_items.inject (0.0) { |sum, item| sum + item.values[0] }
+    total_price = cart_items.inject (0.00) { |sum, item| sum + item.values[0] }
+    total_price.round(2)
   end
   
   private
@@ -53,8 +54,9 @@ class CartService
   # applies bulk discount when matching criteria
   def apply_bulk_discount(product_id: ,number_of_items:)
     rule_to_apply = pricing_rules[product_id]["rule"]["apply_bulk_discount"]
-
-    if number_of_items >= rule_to_apply["required_number_of_items"]
+    required_number_of_items = rule_to_apply["required_number_of_items"]
+    
+    if number_of_items >= required_number_of_items
       discount = rule_to_apply["discount"]
       applied_price = pricing_rules[product_id]["price"] - discount
     end

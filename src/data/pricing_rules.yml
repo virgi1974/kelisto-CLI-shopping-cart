@@ -13,6 +13,6 @@ SR1:
     apply_bulk_discount:
       required_number_of_items: 3
       discount: 0.50
-SF1:
+CF1:
   name: Coffee
   price: 11.23

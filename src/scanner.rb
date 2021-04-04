@@ -32,5 +32,5 @@ result = cart_service.call(cart_items)
 
 puts "\n"
 prompt.ok("---------------------")
-prompt.ok("Total price expected: #{result}")
+prompt.ok("Total price expected: £#{result}")
 prompt.ok("---------------------")
