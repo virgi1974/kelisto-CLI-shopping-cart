@@ -1,0 +1,11 @@
+source 'https://rubygems.org'
+
+ruby '2.7.0'
+
+gem "tty-prompt"
+
+group :development, :test do
+  gem 'rspec'
+  gem 'pry'
+  gem 'simplecov', require: false
+end
